@@ -20,7 +20,7 @@ export async function initApp(): Promise<void> {
   const medplum = new MedplumClient({
     baseUrl: config.baseUrl,
     clientId: config.clientId,
-    storagePrefix: '@medplum:',
+    storagePrefix: '@grovyn:',
     cacheTime: 60000,
     autoBatchTime: 100,
     onUnauthenticated: () => {
@@ -31,19 +31,23 @@ export async function initApp(): Promise<void> {
   });
 
   const theme = createTheme({
+    fontFamily: '"Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+    primaryColor: 'indigo',
+    defaultRadius: 'md',
     headings: {
+      fontFamily: '"Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
       sizes: {
         h1: {
-          fontSize: '1.125rem',
-          fontWeight: '500',
-          lineHeight: '2.0',
+          fontSize: '1.25rem',
+          fontWeight: '600',
+          lineHeight: '1.6',
         },
       },
     },
     fontSizes: {
-      xs: '0.6875rem',
+      xs: '0.75rem',
       sm: '0.875rem',
-      md: '0.875rem',
+      md: '0.9rem',
       lg: '1.0rem',
       xl: '1.125rem',
     },

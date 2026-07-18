@@ -103,7 +103,7 @@ export function Navbar(props: NavbarProps): JSX.Element {
               onClick={props.navbarToggle}
               aria-expanded={opened}
               aria-controls="navbar"
-              aria-label="Medplum Logo"
+              aria-label="Grovyn Logo"
             >
               {props.logo}
             </UnstyledButton>

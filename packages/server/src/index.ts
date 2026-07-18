@@ -5,6 +5,7 @@ import gracefulShutdown from 'http-graceful-shutdown';
 import { initApp, shutdownApp } from './app';
 import { loadConfig } from './config/loader';
 import { exitAfterStdoutDrain, globalLogger } from './logger';
+import { pathToFileURL } from 'node:url';
 import { getServerVersion } from './util/version';
 
 export async function main(configName: string): Promise<void> {
@@ -65,7 +66,11 @@ export async function runFromCli(argv: string[]): Promise<void> {
   }
 }
 
-if (import.meta.main) {
+const isMain =
+  import.meta.main ||
+  (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href);
+
+if (isMain) {
   // We should never hit the catch block here but we can't do top-level await due to how we transpile to CJS for Jest
   runFromCli(process.argv).catch(console.error);
 }

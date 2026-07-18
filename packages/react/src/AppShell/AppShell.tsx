@@ -40,9 +40,7 @@ export interface AppShellProps {
 
 export function AppShell(props: AppShellProps): JSX.Element {
   const [navbarOpen, setNavbarOpen] = useState(localStorage['navbarOpen'] === 'true');
-  const [layoutVersion] = useState(
-    props.layoutVersion ?? (localStorage['appShellLayoutVersion'] as 'v1' | 'v2' | undefined) ?? 'v1'
-  );
+  const [layoutVersion] = useState<'v1' | 'v2'>('v2');
   const medplum = useMedplum();
   const profile = useMedplumProfile();
   const [dismissedAnnouncementIds, setDismissedAnnouncementIds] = useState<ReadonlySet<string>>(() => {

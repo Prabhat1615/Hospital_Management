@@ -419,7 +419,7 @@ export function SearchControl(props: SearchControlProps): JSX.Element {
               </Table.Th>
             ))}
           </Table.Tr>
-          {!props.hideFilters && (
+          {!props.hideFilters && memoizedSearch.filters && memoizedSearch.filters.length > 0 && (
             <Table.Tr>
               {checkboxColumn && <Table.Th />}
               {fields.map((field) => (
@@ -569,7 +569,7 @@ interface FilterDescriptionProps {
 function FilterDescription(props: FilterDescriptionProps): JSX.Element {
   const filters = (props.filters ?? []).filter((f) => props.searchParams.find((p) => p.code === f.code));
   if (filters.length === 0) {
-    return <span>no filters</span>;
+    return null;
   }
 
   return (

@@ -13,6 +13,10 @@ if (!existsSync(path.join(__dirname, '.env'))) {
   copyFileSync(path.join(__dirname, '.env.defaults'), path.join(__dirname, '.env'));
 }
 
+if (existsSync(path.join(__dirname, 'static/img/favicon.ico'))) {
+  copyFileSync(path.join(__dirname, 'static/img/favicon.ico'), path.join(__dirname, 'favicon.ico'));
+}
+
 let gitHash;
 try {
   gitHash = execSync('git rev-parse --short=7 HEAD').toString().trim();

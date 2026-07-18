@@ -7,6 +7,135 @@ body,
   min-height: 100vh;
 }
 
+/* Center sign-in, registration, and reset password containers vertically & horizontally */
+body:not(:has(.mantine-AppShell-navbar)) .mantine-AppShell-main {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 100vh !important;
+  box-sizing: border-box !important;
+  padding: 24px !important;
+}
+
+body:not(:has(.mantine-AppShell-navbar)) .mantine-Container-root,
+body:not(:has(.mantine-AppShell-navbar)) .mantine-Paper-root {
+  width: 100% !important;
+  max-width: 450px !important;
+}
+
 .grecaptcha-badge {
   visibility: hidden;
+}
+
+/* --- Premium Enterprise Light Layout Colors --- */
+
+/* 1. Global Application Background (Soft Cool Slate) */
+body,
+.mantine-AppShell-main {
+  background-color: #f1f5f9 !important; /* Soft slate-100 for depth */
+}
+
+/* 2. Top Header (Glassmorphism effect) */
+header,
+.mantine-AppShell-header {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(12px) !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+/* 3. Navigation Sidebar */
+aside,
+.mantine-AppShell-navbar {
+  background-color: #ffffff !important;
+  border-right: 1px solid #e2e8f0 !important;
+}
+
+/* 4. Layered Content Cards (White cards on slate background) */
+.mantine-Paper-root {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important; /* Premium curved corners */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05) !important; /* Soft depth shadow */
+}
+
+/* 5. Custom Form Inputs */
+.mantine-Input-input,
+.mantine-Select-input,
+.mantine-TextInput-input {
+  border-radius: 8px !important;
+  border: 1px solid #cbd5e1 !important;
+  background-color: #ffffff !important;
+  transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+
+.mantine-Input-input:focus,
+.mantine-Select-input:focus,
+.mantine-TextInput-input:focus {
+  border-color: #4f46e5 !important; /* Indigo 600 */
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+}
+
+/* --- Premium Enterprise Table Styles --- */
+
+/* 1. Global Table styling */
+table,
+.mantine-Table-table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  width: 100% !important;
+  font-family: "Plus Jakarta Sans", sans-serif !important;
+  color: #1e293b !important;
+}
+
+/* 2. Header row background */
+thead tr,
+.mantine-Table-thead tr {
+  background-color: #f8fafc !important; /* Slate-50 */
+}
+
+/* 3. Header cells (Uppercase, bold, spaced layout) */
+th,
+.mantine-Table-th {
+  padding: 14px 18px !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  color: #64748b !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+  text-align: left !important;
+}
+
+/* 4. Body cells (Spacious, clean separators) */
+td,
+.mantine-Table-td {
+  padding: 14px 18px !important;
+  font-size: 0.875rem !important;
+  color: #334155 !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  vertical-align: middle !important;
+  transition: background-color 0.15s ease !important;
+}
+
+/* 5. Smooth interactive hover state on table rows */
+tbody tr,
+.mantine-Table-tbody tr {
+  transition: background-color 0.15s ease !important;
+}
+
+tbody tr:hover,
+.mantine-Table-tbody tr:hover {
+  background-color: rgba(99, 102, 241, 0.03) !important; /* Soft indigo hover highlight */
+  cursor: pointer;
+}
+
+/* 6. Clean corners: Top-left and top-right header cells get rounded borders */
+thead tr:first-child th:first-child,
+.mantine-Table-thead tr:first-child th:first-child {
+  border-top-left-radius: 8px !important;
+}
+thead tr:first-child th:last-child,
+.mantine-Table-thead tr:first-child th:last-child {
+  border-top-right-radius: 8px !important;
 }

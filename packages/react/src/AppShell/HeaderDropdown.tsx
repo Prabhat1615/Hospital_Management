@@ -13,12 +13,9 @@ import {
   IconPalette,
   IconSettings,
   IconSunHigh,
-  IconSwitchHorizontal,
-  IconTable,
 } from '@tabler/icons-react';
 import cx from 'clsx';
 import type { JSX } from 'react';
-import { useState } from 'react';
 import { ProjectLoginOption } from '../auth/ProjectLoginOption';
 import { getAppName } from '../utils/app';
 import classes from './HeaderDropdown.module.css';
@@ -74,10 +71,6 @@ export function HeaderDropdown(props: HeaderDropdownProps): JSX.Element {
   const recentLogins = logins.filter((login) => !isSameLogin(login, activeLogin));
   const project = medplum.getProject();
   const { colorScheme, setColorScheme } = useMantineColorScheme();
-  const [layoutVersion] = useState(
-    () => (localStorage['appShellLayoutVersion'] as AppShellLayoutVersion | undefined) ?? 'v1'
-  );
-  const showLayoutToggle = props.showLayoutVersionToggle ?? true;
 
   const projectDisplay = project?.name ?? medplum.getActiveLogin()?.project.display;
   const profileDisplay = activeLogin?.profile.display ?? (profile ? formatHumanName(profile.name?.[0]) : undefined);
@@ -114,12 +107,6 @@ export function HeaderDropdown(props: HeaderDropdownProps): JSX.Element {
       )}
       <HeaderDropdownDivider />
       <Menu.Item
-        leftSection={<IconSwitchHorizontal size={16} color={MENU_ICON_COLOR} />}
-        onClick={() => navigate('/signin')}
-      >
-        <Text size="sm">Switch to another project</Text>
-      </Menu.Item>
-      <Menu.Item
         leftSection={<IconSettings size={16} color={MENU_ICON_COLOR} />}
         onClick={() => navigate(`/${getReferenceString(profile as ProfileResource)}`)}
       >
@@ -144,29 +131,7 @@ export function HeaderDropdown(props: HeaderDropdownProps): JSX.Element {
           />
         </Box>
       </Flex>
-      {showLayoutToggle && (
-        <Flex className={classes.settingsRow} align="center" pl="sm" pr="xs" py="xs">
-          <Flex align="center" gap="xs">
-            <IconTable size={16} color={MENU_ICON_COLOR} />
-            <Text size="sm">Layout</Text>
-          </Flex>
-          <Box className={classes.settingsControlWrapper}>
-            <SegmentedControl
-              classNames={{ root: cx(classes.segmentedControl, classes.layoutControl) }}
-              size="xs"
-              radius="xl"
-              withItemsBorders={false}
-              value={layoutVersion}
-              onChange={(newValue) => {
-                localStorage['appShellLayoutVersion'] = newValue;
-                locationUtils.reload();
-              }}
-              data={LAYOUT_OPTIONS}
-              aria-label="App shell layout version"
-            />
-          </Box>
-        </Flex>
-      )}
+
       <Menu.Item
         leftSection={<IconLogout size={16} color={MENU_ICON_COLOR} />}
         onClick={async () => {

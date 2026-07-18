@@ -132,33 +132,40 @@ export async function getUserConfiguration(
 }
 
 export function getUserConfigurationMenu(project: Project, membership: ProjectMembership): UserConfigurationMenu[] {
-  const favorites = ['Patient', 'Practitioner', 'Organization', 'ServiceRequest', 'DiagnosticReport', 'Questionnaire'];
+  const favorites = [
+    { name: 'Clients / Patients', target: '/Patient' },
+    { name: 'Staff Directory', target: '/Practitioner' },
+    { name: 'Enterprise Workspace', target: '/Organization' },
+    { name: 'Service Requests', target: '/ServiceRequest' },
+    { name: 'Diagnostic Records', target: '/DiagnosticReport' },
+    { name: 'Forms & Surveys', target: '/Questionnaire' },
+  ];
 
   const result = [
     {
-      title: 'Favorites',
-      link: favorites.map((resourceType) => ({ name: resourceType, target: '/' + resourceType })),
+      title: 'Key Workspaces',
+      link: favorites,
     },
   ];
 
   const link = [
-    { name: 'Project', target: '/admin/project' },
-    { name: 'AccessPolicy', target: '/AccessPolicy' },
-    { name: 'Subscriptions', target: '/Subscription' },
-    { name: 'Batch', target: '/batch' },
+    { name: 'Workspace Configs', target: '/admin/project' },
+    { name: 'Access Policies', target: '/AccessPolicy' },
+    { name: 'Webhooks & Events', target: '/Subscription' },
+    { name: 'Bulk Processing', target: '/batch' },
   ];
   if (!project.superAdmin) {
     link.push({ name: 'Config', target: '/admin/config' });
   }
   if (membership.admin) {
-    result.push({ title: 'Admin', link });
+    result.push({ title: 'Management', link });
   }
 
   if (project.superAdmin) {
     result.push({
       title: 'Super Admin',
       link: [
-        { name: 'Projects', target: '/Project' },
+        { name: 'Workspace Configs', target: '/Project' },
         { name: 'Super Config', target: '/admin/super' },
         { name: 'Super AsyncJob', target: '/admin/super/asyncjob' },
         { name: 'Super DB', target: '/admin/super/db' },

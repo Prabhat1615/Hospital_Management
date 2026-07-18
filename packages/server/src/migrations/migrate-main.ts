@@ -4,6 +4,7 @@ import { FileBuilder } from '@medplum/core';
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { Client } from 'pg';
+import { pathToFileURL } from 'node:url';
 import * as semver from 'semver';
 import packageJson from '../../package.json';
 import { exitAfterStdoutDrain, globalLogger } from '../logger';
@@ -136,7 +137,11 @@ export async function runFromCli(): Promise<void> {
   }
 }
 
-if (import.meta.main) {
+const isMain =
+  import.meta.main ||
+  (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href);
+
+if (isMain) {
   // We should never hit the catch block here but we can't do top-level await due to how we transpile to CJS for Jest
   runFromCli().catch(console.error);
 }

@@ -43,6 +43,38 @@ function KeyboardHint(): JSX.Element {
   );
 }
 
+function mapQuery(input: string): string {
+  const lower = input.toLowerCase();
+  if (lower.includes('client')) {
+    return 'Patient';
+  }
+  if (lower.includes('enterprise') || lower.includes('workspace')) {
+    return 'Organization';
+  }
+  if (lower.includes('staff') || lower.includes('provider')) {
+    return 'Practitioner';
+  }
+  if (lower.includes('report') || lower.includes('diagnostic')) {
+    return 'DiagnosticReport';
+  }
+  if (lower.includes('form') || lower.includes('survey')) {
+    return 'Questionnaire';
+  }
+  if (lower.includes('config')) {
+    return 'Project';
+  }
+  if (lower.includes('webhook') || lower.includes('event')) {
+    return 'Subscription';
+  }
+  if (lower.includes('metric')) {
+    return 'Observation';
+  }
+  if (lower.includes('bulk')) {
+    return 'Batch';
+  }
+  return input;
+}
+
 export function Spotlight({ patientsOnly }: SpotlightProps): JSX.Element {
   const medplum = useMedplum();
   const navigate = useMedplumNavigate();
@@ -69,7 +101,7 @@ export function Spotlight({ patientsOnly }: SpotlightProps): JSX.Element {
         medplum.graphql(graphqlQuery),
         medplum.valueSetExpand({
           url: 'https://medplum.com/fhir/ValueSet/resource-types',
-          filter: query,
+          filter: mapQuery(query),
           count: 5,
         }),
       ])
@@ -205,6 +237,36 @@ function dedupeResources(resources: HeaderSearchTypes[]): HeaderSearchTypes[] {
   return result;
 }
 
+function renameLabel(originalName: string): string {
+  const normalized = originalName.trim().replace(/s$/, '');
+  switch (normalized) {
+    case 'Organization':
+      return 'Enterprise Workspace';
+    case 'Patient':
+      return 'Clients / Patients';
+    case 'Practitioner':
+      return 'Staff Directory';
+    case 'DiagnosticReport':
+      return 'Diagnostic Records';
+    case 'Questionnaire':
+      return 'Forms & Surveys';
+    case 'Project':
+      return 'Workspace Configs';
+    case 'AccessPolicy':
+      return 'Access Policies';
+    case 'Subscription':
+      return 'Webhooks & Events';
+    case 'Observation':
+      return 'Clinical Metrics';
+    case 'Batch':
+      return 'Bulk Processing';
+    case 'ServiceRequest':
+      return 'Service Requests';
+    default:
+      return originalName;
+  }
+}
+
 function patientsToActions(patients: Patient[], navigate: MedplumNavigateFunction): SpotlightActionGroupData[] {
   const patientActions: SpotlightActionData[] = patients
     .filter((p): p is Patient & { id: string } => Boolean(p.id))
@@ -216,7 +278,7 @@ function patientsToActions(patients: Patient[], navigate: MedplumNavigateFunctio
       onClick: () => navigate(`/Patient/${patient.id}`),
     }));
 
-  return patientActions.length > 0 ? [{ group: 'Patients', actions: patientActions }] : [];
+  return patientActions.length > 0 ? [{ group: 'Clients / Patients', actions: patientActions }] : [];
 }
 
 function resourcesToActions(
@@ -229,12 +291,12 @@ function resourcesToActions(
   // Resource types
   const resourceTypeActions: SpotlightActionData[] = resourceTypes.map((rt) => ({
     id: `resource-type-${rt.code}`,
-    label: rt.display ?? rt.code ?? '',
+    label: renameLabel(rt.display ?? rt.code ?? ''),
     description: 'Resource Type',
     onClick: () => navigate(`/${rt.code}`),
   }));
   if (resourceTypeActions.length > 0) {
-    result.push({ group: 'Resource Types', actions: resourceTypeActions });
+    result.push({ group: 'Workspace Sections', actions: resourceTypeActions });
   }
 
   const patientActions: SpotlightActionData[] = [];
@@ -260,7 +322,7 @@ function resourcesToActions(
   }
 
   if (patientActions.length > 0) {
-    result.push({ group: 'Patients', actions: patientActions });
+    result.push({ group: 'Clients / Patients', actions: patientActions });
   }
   if (serviceRequestActions.length > 0) {
     result.push({ group: 'Service Requests', actions: serviceRequestActions });

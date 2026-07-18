@@ -14,7 +14,7 @@ function jsonResponse(body: unknown): Response {
 describe('App Index', () => {
   beforeAll(() => {
     window.localStorage.setItem(
-      '@medplum:activeLogin',
+      '@grovyn:activeLogin',
       JSON.stringify({
         accessToken: createFakeJwt({ client_id: '123', login_id: '123' }),
         refreshToken: '456',

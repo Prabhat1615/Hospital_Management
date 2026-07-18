@@ -5,7 +5,6 @@ import type { UserConfiguration } from '@medplum/fhirtypes';
 import type { NavbarMenu } from '@medplum/react';
 import { AppShell, Loading, Logo, ScrollToTop, useMedplum } from '@medplum/react';
 import {
-  IconAlertTriangle,
   IconBrandAsana,
   IconBuilding,
   IconDatabase,
@@ -23,7 +22,7 @@ import {
 } from '@tabler/icons-react';
 import type { FunctionComponent, JSX } from 'react';
 import { Suspense } from 'react';
-import { Link, useLocation, useSearchParams } from 'react-router';
+import { useLocation, useSearchParams } from 'react-router';
 import { AppRoutes } from './AppRoutes';
 
 import './App.css';
@@ -31,7 +30,7 @@ import './App.css';
 export function App(): JSX.Element {
   const medplum = useMedplum();
   const config = medplum.getUserConfiguration();
-  const project = medplum.getProject();
+  // const project = medplum.getProject();
   const location = useLocation();
   const [searchParams] = useSearchParams();
 
@@ -47,23 +46,6 @@ export function App(): JSX.Element {
       version={MEDPLUM_VERSION}
       menus={userConfigToMenu(config)}
       displayAddBookmark={!!config?.id}
-      announcements={
-        project?.superAdmin
-          ? [
-              {
-                message: (
-                  <>
-                    Warning: logged in as{' '}
-                    <Link to="https://www.medplum.com/docs/self-hosting/super-admin-guide">Medplum Super Admin</Link>.
-                  </>
-                ),
-                color: 'red',
-                icon: <IconAlertTriangle size={16} />,
-                role: 'alert',
-              },
-            ]
-          : undefined
-      }
     >
       <ScrollToTop />
       <Suspense fallback={<Loading />}>
@@ -73,23 +55,51 @@ export function App(): JSX.Element {
   );
 }
 
+function renameLabel(originalName: string): string {
+  const normalized = originalName.trim().replace(/s$/, '');
+  switch (normalized) {
+    case 'Organization':
+      return 'Enterprise Workspace';
+    case 'Patient':
+      return 'Clients / Patients';
+    case 'Practitioner':
+      return 'Staff Directory';
+    case 'DiagnosticReport':
+      return 'Diagnostic Records';
+    case 'Questionnaire':
+      return 'Forms & Surveys';
+    case 'Project':
+      return 'Workspace Configs';
+    case 'AccessPolicy':
+      return 'Access Policies';
+    case 'Subscription':
+      return 'Webhooks & Events';
+    case 'Observation':
+      return 'Clinical Metrics';
+    case 'Batch':
+      return 'Bulk Processing';
+    default:
+      return originalName;
+  }
+}
+
 function userConfigToMenu(config: UserConfiguration | undefined): NavbarMenu[] {
   const result =
     config?.menu?.map((menu) => ({
-      title: menu.title,
+      title: menu.title === 'Favorites' ? 'Key Workspaces' : menu.title,
       links:
         menu.link?.map((link) => ({
-          label: link.name,
+          label: renameLabel(link.name ?? ''),
           href: link.target,
           icon: getIcon(link.target),
         })) || [],
     })) || [];
 
   result.push({
-    title: 'Settings',
+    title: 'Management',
     links: [
       {
-        label: 'Security',
+        label: 'Security Controls',
         href: '/security',
         icon: <IconLock />,
       },

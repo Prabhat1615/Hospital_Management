@@ -17,14 +17,14 @@
   "introspectionEnabled": true,
   "rateLimitsEnabled": false,
   "database": {
-    "host": "localhost",
+    "host": "127.0.0.1",
     "port": 5432,
     "dbname": "medplum",
     "username": "medplum",
     "password": "medplum"
   },
   "redis": {
-    "host": "localhost",
+    "host": "127.0.0.1",
     "port": 6379,
     "password": "medplum"
   },
