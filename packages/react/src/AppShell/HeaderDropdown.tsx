@@ -20,8 +20,6 @@ import { ProjectLoginOption } from '../auth/ProjectLoginOption';
 import { getAppName } from '../utils/app';
 import classes from './HeaderDropdown.module.css';
 
-type AppShellLayoutVersion = 'v1' | 'v2';
-
 const MENU_ICON_COLOR = 'var(--mantine-color-dimmed)';
 
 const THEME_OPTIONS: { value: string; label: JSX.Element }[] = [
@@ -30,10 +28,6 @@ const THEME_OPTIONS: { value: string; label: JSX.Element }[] = [
   { value: 'dark', label: <ThemeOptionLabel Icon={IconMoon} label="Dark" /> },
 ];
 
-const LAYOUT_OPTIONS: { label: string; value: AppShellLayoutVersion }[] = [
-  { label: 'v1', value: 'v1' },
-  { label: 'v2', value: 'v2' },
-];
 
 function ThemeOptionLabel({ Icon, label }: { readonly Icon: TablerIcon; readonly label: string }): JSX.Element {
   return (

@@ -566,7 +566,7 @@ interface FilterDescriptionProps {
   readonly filters?: Filter[];
 }
 
-function FilterDescription(props: FilterDescriptionProps): JSX.Element {
+function FilterDescription(props: FilterDescriptionProps): JSX.Element | null {
   const filters = (props.filters ?? []).filter((f) => props.searchParams.find((p) => p.code === f.code));
   if (filters.length === 0) {
     return null;
