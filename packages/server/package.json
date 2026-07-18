@@ -23,7 +23,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "migrate": "npm run build --workspace=@medplum/definitions && tsx src/migrations/migrate-main.ts",
-    "start": "node --experimental-loader=@opentelemetry/instrumentation/hook.mjs --import ./dist/otel/instrumentation.js dist/index.js",
+    "start": "node dist/index.js",
+    //"start": "node --experimental-loader=@opentelemetry/instrumentation/hook.mjs --import ./dist/otel/instrumentation.js dist/index.js",
     "start:no-otel": "node dist/index.js",
     "test": "vitest run --exclude src/seed.test.ts",
     "test:seed": "vitest run src/seed.test.ts --testTimeout=400000"
