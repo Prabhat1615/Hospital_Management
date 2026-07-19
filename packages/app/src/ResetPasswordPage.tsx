@@ -3,12 +3,11 @@
 import { ResetPasswordForm } from '@medplum/react';
 import type { JSX } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { getConfig, isRegisterEnabled } from './config';
+import { isRegisterEnabled } from './config';
 
 export function ResetPasswordPage(): JSX.Element {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const config = getConfig();
   const projectId = searchParams.get('project') || undefined;
 
   return (
