@@ -390,6 +390,16 @@ export function validateRecaptcha(projectValidation?: (p: Project) => OperationO
     const config = getConfig();
     let secretKey: string | undefined = config.recaptchaSecretKey;
 
+    // If reCAPTCHA is not configured on the server, skip validation entirely.
+    // Without this guard, a client sending any recaptchaSiteKey (e.g. from a
+    // frontend .env default) would trigger a project lookup that always fails
+    // because no project has that key configured, resulting in a spurious
+    // "Invalid recaptchaSiteKey" error.
+    if (!config.recaptchaSiteKey && !config.recaptchaSecretKey) {
+      next();
+      return;
+    }
+
     if (recaptchaSiteKey && recaptchaSiteKey !== config.recaptchaSiteKey) {
       // If the recaptcha site key is not the main Medplum recaptcha site key,
       // then it must be associated with a Project.
