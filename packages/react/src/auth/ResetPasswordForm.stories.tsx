@@ -21,6 +21,18 @@ export function Basic(): JSX.Element {
   );
 }
 
+export function WithRecaptcha(): JSX.Element {
+  return (
+    <div style={{ minHeight: '100vh' }}>
+      <ResetPasswordForm
+        recaptchaSiteKey="abc"
+        onSuccess={() => alert('Password reset email sent!')}
+        onSignIn={() => alert('Navigate to sign in')}
+      />
+    </div>
+  );
+}
+
 export function NoNavigation(): JSX.Element {
   return (
     <div style={{ minHeight: '100vh' }}>

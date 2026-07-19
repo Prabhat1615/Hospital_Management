@@ -16,6 +16,7 @@ export interface MedplumConfig {
   baseUrl?: string;
   clientId?: string;
   googleClientId?: string;
+  recaptchaSiteKey?: string;
   registerEnabled?: boolean;
   bots?: MedplumBotConfig[];
 }

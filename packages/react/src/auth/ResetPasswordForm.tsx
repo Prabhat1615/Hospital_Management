@@ -5,26 +5,34 @@ import { normalizeOperationOutcome } from '@medplum/core';
 import type { OperationOutcome } from '@medplum/fhirtypes';
 import { useMedplum } from '@medplum/react-hooks';
 import type { JSX } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Document } from '../Document/Document';
 import { Form } from '../Form/Form';
 import { SubmitButton } from '../Form/SubmitButton';
 import { Logo } from '../Logo/Logo';
 import { OperationOutcomeAlert } from '../OperationOutcomeAlert/OperationOutcomeAlert';
 import { getErrorsForInput, getIssuesForExpression } from '../utils/outcomes';
+import { getRecaptcha, initRecaptcha } from '../utils/recaptcha';
 
 export interface ResetPasswordFormProps {
   readonly projectId?: string;
+  readonly recaptchaSiteKey?: string;
   readonly onSuccess?: () => void;
   readonly onSignIn?: () => void;
   readonly onRegister?: () => void;
 }
 
 export function ResetPasswordForm(props: ResetPasswordFormProps): JSX.Element {
-  const { projectId, onSuccess, onSignIn, onRegister } = props;
+  const { projectId, recaptchaSiteKey, onSuccess, onSignIn, onRegister } = props;
   const medplum = useMedplum();
   const [outcome, setOutcome] = useState<OperationOutcome>();
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    if (recaptchaSiteKey) {
+      initRecaptcha(recaptchaSiteKey);
+    }
+  }, [recaptchaSiteKey]);
 
   return (
     <Document width={400} px="xl" py="xl" bdrs="md">
@@ -32,9 +40,15 @@ export function ResetPasswordForm(props: ResetPasswordFormProps): JSX.Element {
         onSubmit={async (formData: Record<string, string>) => {
           setOutcome(undefined);
           try {
+            let recaptchaToken = '';
+            if (recaptchaSiteKey) {
+              recaptchaToken = await getRecaptcha(recaptchaSiteKey);
+            }
+
             await medplum.post('auth/resetpassword', {
               ...formData,
               projectId,
+              recaptchaToken,
             });
             setSuccess(true);
             onSuccess?.();

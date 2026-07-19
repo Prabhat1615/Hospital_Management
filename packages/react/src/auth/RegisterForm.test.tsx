@@ -11,6 +11,8 @@ import { act, fireEvent, render, screen, waitFor } from '../test-utils/render';
 import type { RegisterFormProps } from './RegisterForm';
 import { RegisterForm } from './RegisterForm';
 
+const recaptchaSiteKey = 'abc';
+
 function mockFetch(url: string, options: any): Promise<any> {
   let status = 404;
   let result: any;
@@ -144,6 +146,17 @@ describe('RegisterForm', () => {
     Object.defineProperty(global, 'crypto', {
       value: webcrypto,
     });
+
+    Object.defineProperty(global, 'grecaptcha', {
+      value: {
+        ready(callback: () => void): void {
+          callback();
+        },
+        execute(): Promise<string> {
+          return Promise.resolve('token');
+        },
+      },
+    });
   });
 
   afterEach(() => {
@@ -154,6 +167,7 @@ describe('RegisterForm', () => {
     const onSuccess = vi.fn();
     await setup({
       type: 'project',
+      recaptchaSiteKey,
       onSuccess,
     });
 
@@ -201,6 +215,7 @@ describe('RegisterForm', () => {
   test('Sign in link hidden by default', async () => {
     await setup({
       type: 'project',
+      recaptchaSiteKey,
       onSuccess: vi.fn(),
     });
 
@@ -211,6 +226,7 @@ describe('RegisterForm', () => {
     const onSignIn = vi.fn();
     await setup({
       type: 'project',
+      recaptchaSiteKey,
       onSuccess: vi.fn(),
       onSignIn,
     });
@@ -220,6 +236,56 @@ describe('RegisterForm', () => {
     expect(onSignIn).toHaveBeenCalled();
   });
 
+  test('Register new project success with empty recaptchaSiteKey', async () => {
+    const onSuccess = vi.fn();
+
+    await setup({
+      type: 'project',
+      recaptchaSiteKey: '',
+      onSuccess,
+    });
+
+    expect(screen.getByText('My Register Form')).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('First Name', { exact: false }), { target: { value: 'First' } });
+    });
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Last Name', { exact: false }), { target: { value: 'Last' } });
+    });
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Email', { exact: false }), {
+        target: { value: 'new-user@example.com' },
+      });
+    });
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Password', { exact: false, selector: 'input' }), {
+        target: { value: 'new-password' },
+      });
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Register Account'));
+    });
+
+    expect(await screen.findByLabelText('Project Name', { exact: false })).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Project Name', { exact: false }), { target: { value: 'My Project' } });
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Create Project' }));
+    });
+
+    await waitFor(() => expect(medplum.getProfile()).toBeDefined());
+
+    expect(onSuccess).toHaveBeenCalled();
+  });
+
   test('Register new patient success', async () => {
     const projectId = randomUUID();
     const onSuccess = vi.fn();
@@ -227,6 +293,7 @@ describe('RegisterForm', () => {
     await setup({
       type: 'patient',
       projectId,
+      recaptchaSiteKey,
       onSuccess,
     });
 
@@ -304,7 +371,8 @@ describe('RegisterForm', () => {
         type: 'project',
         onSuccess,
         googleClientId: clientId,
-        });
+        recaptchaSiteKey,
+      });
     });
 
     expect(await screen.findByText('Sign in with Google')).toBeInTheDocument();

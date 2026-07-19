@@ -53,6 +53,7 @@ export async function updateAppCommand(tag: string, options: UpdateAppOptions): 
     MEDPLUM_BASE_URL: config.baseUrl as string,
     MEDPLUM_CLIENT_ID: config.clientId ?? '',
     GOOGLE_CLIENT_ID: config.googleClientId ?? '',
+    RECAPTCHA_SITE_KEY: config.recaptchaSiteKey ?? '',
     MEDPLUM_REGISTER_ENABLED: config.registerEnabled ? 'true' : 'false',
   });
 

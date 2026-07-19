@@ -38,6 +38,7 @@ export function RegisterPage(): JSX.Element | null {
         window.location.href = '/';
       }}
       googleClientId={import.meta.env.GOOGLE_CLIENT_ID}
+      recaptchaSiteKey={import.meta.env.RECAPTCHA_SITE_KEY}
       login={searchParams.get('login') || undefined}
       onSignIn={() => navigate('/signin')?.catch(console.error)}
     >
