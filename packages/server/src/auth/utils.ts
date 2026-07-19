@@ -6,31 +6,27 @@ import {
   createReference,
   getReferenceString,
   OperationOutcomeError,
-  Operator,
   resolveId,
 } from '@medplum/core';
 import type {
   ContactPoint,
   Login,
-  OperationOutcome,
   Project,
   ProjectMembership,
   Reference,
   User,
 } from '@medplum/fhirtypes';
 import bcrypt from 'bcrypt';
-import type { Handler, NextFunction, Request, Response } from 'express';
+import type { Response } from 'express';
 import { randomInt } from 'node:crypto';
 import { authenticator } from 'otplib';
 import { toDataURL } from 'qrcode';
 import { getConfig } from '../config/loader';
 import { EMAIL_MFA_CODE_EXPIRATION_MS } from '../constants';
 import { sendEmail } from '../email/email';
-import { sendOutcome } from '../fhir/outcomes';
 import type { SystemRepository } from '../fhir/repo';
-import { getGlobalSystemRepo, getShardSystemRepo } from '../fhir/repo';
+import { getGlobalSystemRepo } from '../fhir/repo';
 import { rewriteAttachments, RewriteMode } from '../fhir/rewrite';
-import { TODO_SHARD_ID } from '../fhir/sharding';
 import { getLogger } from '../logger';
 import { getClientApplication, getMembershipsForLogin } from '../oauth/utils';
 
@@ -303,25 +299,6 @@ export function sendLoginCookie(res: Response, login: Login): void {
 }
 
 /**
- * Verifies the recaptcha response from the client.
- * @param secretKey - The Recaptcha secret key to use for verification.
- * @param recaptchaToken - The Recaptcha response from the client.
- * @returns True on success, false on failure.
- */
-export async function verifyRecaptcha(secretKey: string, recaptchaToken: string): Promise<boolean> {
-  const url =
-    'https://www.google.com/recaptcha/api/siteverify' +
-    '?secret=' +
-    encodeURIComponent(secretKey) +
-    '&response=' +
-    encodeURIComponent(recaptchaToken);
-
-  const response = await fetch(url, { method: 'POST', headers: { 'Accept-Encoding': 'identity' } });
-  const json = (await response.json()) as { success: boolean };
-  return json.success;
-}
-
-/**
  * Returns project ID if clientId is provided.
  * @param clientId - clientId from the client
  * @param projectId - projectId from the client
@@ -346,36 +323,6 @@ export async function getProjectIdByClientId(
 }
 
 /**
- * Returns a project by recaptcha site key.
- * @param recaptchaSiteKey - reCAPTCHA site key from the client.
- * @param projectId - Optional project ID from the client.
- * @returns Project if found, otherwise undefined.
- */
-export function getProjectByRecaptchaSiteKey(
-  recaptchaSiteKey: string,
-  projectId: string | undefined
-): Promise<WithId<Project> | undefined> {
-  const filters = [
-    {
-      code: 'recaptcha-site-key',
-      operator: Operator.EQUALS,
-      value: recaptchaSiteKey,
-    },
-  ];
-
-  if (projectId) {
-    filters.push({
-      code: '_id',
-      operator: Operator.EQUALS,
-      value: projectId,
-    });
-  }
-
-  const systemRepo = getShardSystemRepo(TODO_SHARD_ID); // not shard ready; would require searching all shards
-  return systemRepo.searchOne<Project>({ resourceType: 'Project', filters });
-}
-
-/**
  * Returns the bcrypt hash of the password.
  * @param password - The input password.
  * @returns The bcrypt hash of the password.
@@ -384,55 +331,4 @@ export function bcryptHashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, getConfig().bcryptHashSalt);
 }
 
-export function validateRecaptcha(projectValidation?: (p: Project) => OperationOutcome | undefined): Handler {
-  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const recaptchaSiteKey = req.body.recaptchaSiteKey;
-    const config = getConfig();
-    let secretKey: string | undefined = config.recaptchaSecretKey;
 
-    // If reCAPTCHA is not configured on the server, skip validation entirely.
-    // Without this guard, a client sending any recaptchaSiteKey (e.g. from a
-    // frontend .env default) would trigger a project lookup that always fails
-    // because no project has that key configured, resulting in a spurious
-    // "Invalid recaptchaSiteKey" error.
-    if (!config.recaptchaSiteKey && !config.recaptchaSecretKey) {
-      next();
-      return;
-    }
-
-    if (recaptchaSiteKey && recaptchaSiteKey !== config.recaptchaSiteKey) {
-      // If the recaptcha site key is not the main Medplum recaptcha site key,
-      // then it must be associated with a Project.
-      // The user can only authenticate with that project.
-      const project = await getProjectByRecaptchaSiteKey(recaptchaSiteKey, req.body.projectId);
-      if (!project) {
-        sendOutcome(res, badRequest('Invalid recaptchaSiteKey'));
-        return;
-      }
-      secretKey = project.site?.find((s) => s.recaptchaSiteKey === recaptchaSiteKey)?.recaptchaSecretKey;
-      if (!secretKey) {
-        sendOutcome(res, badRequest('Invalid recaptchaSecretKey'));
-        return;
-      }
-
-      const validationOutcome = projectValidation?.(project);
-      if (validationOutcome) {
-        sendOutcome(res, validationOutcome);
-        return;
-      }
-    }
-
-    if (secretKey) {
-      if (!req.body.recaptchaToken) {
-        sendOutcome(res, badRequest('Recaptcha token is required'));
-        return;
-      }
-
-      if (!(await verifyRecaptcha(secretKey, req.body.recaptchaToken))) {
-        sendOutcome(res, badRequest('Recaptcha failed'));
-        return;
-      }
-    }
-    next();
-  };
-}
