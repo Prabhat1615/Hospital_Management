@@ -4,7 +4,6 @@ import { MockClient } from '@medplum/mock';
 import { MedplumProvider } from '@medplum/react';
 import { MemoryRouter } from 'react-router';
 import { ResetPasswordPage } from './ResetPasswordPage';
-import { getConfig } from './config';
 import type { UserEvent } from './test-utils/render';
 import { render, screen, userEvent } from './test-utils/render';
 
@@ -24,53 +23,17 @@ function setup(): UserEvent {
 }
 
 describe('ResetPasswordPage', () => {
-  const grecaptchaResolved = vi.fn();
-
-  beforeAll(() => {
-    Object.defineProperty(globalThis, 'grecaptcha', {
-      value: {
-        ready(callback: () => void): void {
-          callback();
-        },
-        execute(): Promise<string> {
-          grecaptchaResolved();
-          return Promise.resolve('token');
-        },
-      },
-    });
-  });
-
-  beforeEach(() => {
-    vi.resetModules();
-  });
-
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
-
   test('Renders', () => {
     setup();
     expect(screen.getByRole('button', { name: 'Reset Password' })).toBeInTheDocument();
   });
 
-  test('Submit success with recaptcha site key', async () => {
-    getConfig().recaptchaSiteKey = 'recaptchasitekey';
+  test('Submit success', async () => {
     const user = setup();
 
     await user.type(screen.getByLabelText('Email *'), 'admin@example.com');
     await user.click(screen.getByRole('button', { name: 'Reset Password' }));
 
-    expect(grecaptchaResolved).toHaveBeenCalled();
-    expect(screen.getByText('password reset email will be sent', { exact: false })).toBeInTheDocument();
-  });
-
-  test('Submit success without recaptcha site key', async () => {
-    getConfig().recaptchaSiteKey = '';
-    const user = setup();
-
-    await user.type(screen.getByLabelText('Email *'), 'admin@example.com');
-    await user.click(screen.getByRole('button', { name: 'Reset Password' }));
-    expect(grecaptchaResolved).not.toHaveBeenCalled();
     expect(screen.getByText('password reset email will be sent', { exact: false })).toBeInTheDocument();
   });
 });

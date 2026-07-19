@@ -15,7 +15,6 @@ export function RegisterPage(): JSX.Element {
           projectId={import.meta.env.MEDPLUM_PROJECT_ID}
           googleClientId={import.meta.env.GOOGLE_CLIENT_ID}
           clientId={import.meta.env.MEDPLUM_CLIENT_ID}
-          recaptchaSiteKey={import.meta.env.RECAPTCHA_SITE_KEY}
           onSuccess={() => navigate('/')?.catch(console.error)}
           onSignIn={() => navigate('/signin')?.catch(console.error)}
         >

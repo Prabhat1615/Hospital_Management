@@ -60,8 +60,6 @@ export interface MedplumServerConfig {
   bullmq?: MedplumBullmqConfig;
   googleClientId?: string;
   googleClientSecret?: string;
-  recaptchaSiteKey?: string;
-  recaptchaSecretKey?: string;
   maxJsonSize: string;
   maxBatchSize: string;
   allowedOrigins?: string;

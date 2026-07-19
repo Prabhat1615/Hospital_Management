@@ -14,7 +14,6 @@ export function ResetPasswordPage(): JSX.Element {
   return (
     <ResetPasswordForm
       projectId={projectId}
-      recaptchaSiteKey={config.recaptchaSiteKey}
       onSignIn={() => navigate('/signin')?.catch(console.error)}
       onRegister={isRegisterEnabled() ? () => navigate('/register')?.catch(console.error) : undefined}
     />

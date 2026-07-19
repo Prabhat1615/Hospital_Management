@@ -40,7 +40,6 @@ export function RegisterPage(): JSX.Element | null {
         window.location.href = '/';
       }}
       googleClientId={config.googleClientId}
-      recaptchaSiteKey={config.recaptchaSiteKey}
       login={searchParams.get('login') || undefined}
       onSignIn={() => navigate('/signin')?.catch(console.error)}
     >

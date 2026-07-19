@@ -6,7 +6,7 @@ import { normalizeOperationOutcome } from '@medplum/core';
 import type { OperationOutcome } from '@medplum/fhirtypes';
 import { useMedplum } from '@medplum/react-hooks';
 import type { JSX, ReactNode } from 'react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Form } from '../Form/Form';
 import { SubmitButton } from '../Form/SubmitButton';
 import { GoogleButton } from '../GoogleButton/GoogleButton';
@@ -14,13 +14,10 @@ import { getGoogleClientId } from '../GoogleButton/GoogleButton.utils';
 import { OperationOutcomeAlert } from '../OperationOutcomeAlert/OperationOutcomeAlert';
 import { PasswordInput } from '../PasswordInput/PasswordInput';
 import { getErrorsForInput, getIssuesForExpression } from '../utils/outcomes';
-import { getRecaptcha, initRecaptcha } from '../utils/recaptcha';
-
 export interface NewUserFormProps {
   readonly projectId: string;
   readonly clientId?: string;
   readonly googleClientId?: string;
-  readonly recaptchaSiteKey?: string;
   readonly children?: ReactNode;
   readonly onSignIn?: () => void;
   readonly handleAuthResponse: (response: LoginAuthenticationResponse) => void;
@@ -28,26 +25,15 @@ export interface NewUserFormProps {
 
 export function NewUserForm(props: NewUserFormProps): JSX.Element {
   const googleClientId = getGoogleClientId(props.googleClientId);
-  const recaptchaSiteKey = props.recaptchaSiteKey;
   const medplum = useMedplum();
   const [outcome, setOutcome] = useState<OperationOutcome>();
   const issues = getIssuesForExpression(outcome, undefined);
-
-  useEffect(() => {
-    if (recaptchaSiteKey) {
-      initRecaptcha(recaptchaSiteKey);
-    }
-  }, [recaptchaSiteKey]);
 
   return (
     <Form
       onSubmit={async (formData: Record<string, string>) => {
         setOutcome(undefined);
         try {
-          let recaptchaToken = '';
-          if (recaptchaSiteKey) {
-            recaptchaToken = await getRecaptcha(recaptchaSiteKey);
-          }
           props.handleAuthResponse(
             await medplum.startNewUser({
               projectId: props.projectId,
@@ -57,8 +43,6 @@ export function NewUserForm(props: NewUserFormProps): JSX.Element {
               email: formData.email,
               password: formData.password,
               remember: formData.remember === 'true',
-              recaptchaSiteKey,
-              recaptchaToken,
             })
           );
         } catch (err) {
@@ -161,12 +145,6 @@ export function NewUserForm(props: NewUserFormProps): JSX.Element {
           <Anchor href="https://www.medplum.com/privacy">Privacy&nbsp;Policy</Anchor>
           {' and '}
           <Anchor href="https://www.medplum.com/terms">Terms&nbsp;of&nbsp;Service</Anchor>.
-        </Text>
-        <Text c="dimmed" size="xs" ta="center">
-          This site is protected by reCAPTCHA and the Google{' '}
-          <Anchor href="https://policies.google.com/privacy">Privacy&nbsp;Policy</Anchor>
-          {' and '}
-          <Anchor href="https://policies.google.com/terms">Terms&nbsp;of&nbsp;Service</Anchor> apply.
         </Text>
       </Stack>
     </Form>

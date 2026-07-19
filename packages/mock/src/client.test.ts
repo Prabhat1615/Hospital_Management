@@ -129,7 +129,6 @@ describe('MockClient', () => {
       lastName: 'Foo',
       email: `george@example.com`,
       password: 'password',
-      recaptchaToken: 'xyz',
     };
 
     const response1 = await client.startNewUser(newUserRequest);
@@ -155,7 +154,6 @@ describe('MockClient', () => {
       lastName: 'Foo',
       email: `george@example.com`,
       password: 'password',
-      recaptchaToken: 'xyz',
     };
 
     const response1 = await client.startNewUser(newUserRequest);
